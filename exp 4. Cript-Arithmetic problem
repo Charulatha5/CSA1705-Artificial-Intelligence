@@ -1,30 +1,30 @@
-import itertools
+def is_solution_valid(mapping, words, result):
+    word_values = [int(''.join(str(mapping[c]) for c in word)) for word in words]
+    result_value = int(''.join(str(mapping[c]) for c in result))
+    return sum(word_values) == result_value
 
-def solve_cryptarithmetic(puzzle):
-    # Extract unique letters from the puzzle
-    words = puzzle.split()
-    letters = set(char for word in words for char in word)
-    if len(letters) > 10:
-        return None  # More than 10 unique letters, no valid solution
+def solve_cryptarithmetic(words, result):
+    all_letters = set(''.join(words + [result]))
+    if len(all_letters) > 10:
+        return None
 
-    # Generate all possible digit combinations
-    for digits in itertools.permutations(range(10), len(letters)):
-        # Map letters to digits
-        mapping = dict(zip(letters, digits))
-        # Check if the mapping satisfies the puzzle
-        if all(sum(mapping[char] * 10 ** (len(word) - idx - 1) for idx, char in enumerate(word)) != 0 for word in words):
+    from itertools import permutations
+    for perm in permutations(range(10), len(all_letters)):
+        mapping = {letter: digit for letter, digit in zip(sorted(all_letters), perm)}
+        if mapping[result[0]] == 0:
+            continue
+        if is_solution_valid(mapping, words, result):
             return mapping
 
-# Example puzzle
-puzzle = "SEND + MORE == MONEY"
-
-# Solve the puzzle
-solution = solve_cryptarithmetic(puzzle)
-
-# Print the solution
+print("Cryptarithmetic")
+print("SEND + MORE = MONEY")
+words = ['send', 'more']
+result = 'money'
+solution = solve_cryptarithmetic(words, result)
 if solution:
     print("Solution found:")
-    for word in puzzle.split():
-        print(word.translate(str.maketrans(solution)))
+    for letter, digit in solution.items():
+        print(f"{letter} = {digit}")
 else:
     print("No solution found.")
+
