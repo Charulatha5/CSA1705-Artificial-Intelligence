@@ -32,3 +32,4 @@ if map_coloring(graph, colors, coloring, nodes):
         print(f"{node} -> {color}")
 else:
     print("No valid coloring found for the map.")
+
