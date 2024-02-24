@@ -1,0 +1,44 @@
+from collections import deque
+
+def bfs(start, end, capacities):
+    visited = set()
+    queue = deque([(start, [])])
+
+    while queue:
+        current, path = queue.popleft()
+
+        if current == end:
+            return path + [end]
+
+        visited.add(current)
+        for action, result in get_actions(current, capacities):
+            if result not in visited:
+                queue.append((result, path + [action]))
+
+def get_actions(state, capacities):
+    actions = []
+    for i, jug in enumerate(state):
+        if jug > 0:
+            actions.append(('Empty Jug {}'.format(i + 1), tuple(0 if idx == i else val for idx, val in enumerate(state))))
+            for j, other in enumerate(state):
+                if i != j and other < capacities[j]:
+                    amount_to_pour = min(jug, capacities[j] - other)
+                    new_state = tuple(amount if idx == j else amount + other for idx, amount in enumerate(state))
+                    new_state = tuple(amount if idx == i else amount - amount_to_pour for idx, amount in enumerate(new_state))
+                    actions.append(('Pour from Jug {} to Jug {}'.format(i + 1, j + 1), new_state))
+    return actions
+
+def print_solution(path):
+    if path is None:
+        print("No solution found.")
+    else:
+        print("Solution found:")
+        for i, (action, state) in enumerate(path):
+            print("Step {}: {} => {}".format(i + 1, action, state))
+
+capacities = (4, 3)
+start_state = (0, 0)
+end_state = (2, 0)
+
+solution_path = bfs(start_state, end_state, capacities)
+print_solution(solution_path)
