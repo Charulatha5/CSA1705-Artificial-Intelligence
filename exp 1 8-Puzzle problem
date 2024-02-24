@@ -1,0 +1,67 @@
+from collections import deque
+
+# Function to find the index of the empty tile
+def find_empty_tile(state):
+    for i in range(3):
+        for j in range(3):
+            if state[i][j] == 0:
+                return i, j
+
+# Function to get the possible moves from the current state
+def get_possible_moves(state):
+    moves = []
+    empty_row, empty_col = find_empty_tile(state)
+    deltas = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+    for delta in deltas:
+        new_row, new_col = empty_row + delta[0], empty_col + delta[1]
+        if 0 <= new_row < 3 and 0 <= new_col < 3:
+            new_state = [row[:] for row in state]
+            new_state[empty_row][empty_col], new_state[new_row][new_col] = new_state[new_row][new_col], new_state[empty_row][empty_col]
+            moves.append(new_state)
+
+    return moves
+
+# Function to solve the 8-puzzle problem using Breadth-First Search
+def solve_puzzle(initial_state):
+    frontier = deque([(initial_state, [])])
+    visited = set()
+
+    while frontier:
+        state, path = frontier.popleft()
+
+        if state == goal_state:
+            return path + [state]
+
+        visited.add(tuple(map(tuple, state)))
+        for next_state in get_possible_moves(state):
+            if tuple(map(tuple, next_state)) not in visited:
+                frontier.append((next_state, path + [state]))
+
+    return None
+
+# Example initial and goal states
+initial_state = [
+    [1, 2, 3],
+    [4, 0, 5],
+    [6, 7, 8]
+]
+
+goal_state = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 0]
+]
+
+# Solve the puzzle
+solution = solve_puzzle(initial_state)
+
+# Print the solution
+if solution:
+    print("Solution found:")
+    for state in solution:
+        for row in state:
+            print(row)
+        print()
+else:
+    print("No solution found.")
