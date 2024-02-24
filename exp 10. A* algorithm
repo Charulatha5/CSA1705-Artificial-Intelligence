@@ -1,0 +1,57 @@
+import heapq
+
+class Graph:
+    def __init__(self):
+        self.vertices = {}
+
+    def add_edge(self, u, v, weight):
+        self.vertices.setdefault(u, []).append((v, weight))
+        self.vertices.setdefault(v, []).append((u, weight))
+
+    def astar(self, start, goal):
+        open_set = [(0, start)]
+        came_from = {}
+        g_score = {start: 0}
+        f_score = {start: self.heuristic(start, goal)}
+
+        while open_set:
+            current_f_score, current_vertex = heapq.heappop(open_set)
+
+            if current_vertex == goal:
+                path = [goal]
+                while goal in came_from:
+                    goal = came_from[goal]
+                    path.append(goal)
+                return path[::-1]
+
+            for neighbor, weight in self.vertices[current_vertex]:
+                tentative_g_score = g_score[current_vertex] + weight
+                if tentative_g_score < g_score.get(neighbor, float('inf')):
+                    came_from[neighbor] = current_vertex
+                    g_score[neighbor] = tentative_g_score
+                    f_score[neighbor] = tentative_g_score + self.heuristic(neighbor, goal)
+                    heapq.heappush(open_set, (f_score[neighbor], neighbor))
+
+        return None
+
+    def heuristic(self, vertex, goal):
+        return abs(vertex[0] - goal[0]) + abs(vertex[1] - goal[1])
+
+# Example usage:
+graph = Graph()
+graph.add_edge((0, 0), (1, 0), 1)
+graph.add_edge((0, 0), (0, 1), 1)
+graph.add_edge((1, 0), (1, 1), 1)
+graph.add_edge((1, 0), (2, 0), 1)
+graph.add_edge((0, 1), (0, 2), 1)
+graph.add_edge((1, 1), (1, 2), 1)
+graph.add_edge((1, 1), (2, 1), 1)
+graph.add_edge((2, 0), (2, 1), 1)
+graph.add_edge((2, 1), (2, 2), 1)
+graph.add_edge((0, 2), (1, 2), 1)
+graph.add_edge((1, 2), (2, 2), 1)
+
+start = (0, 0)
+goal = (2, 2)
+path = graph.astar(start, goal)
+print("Shortest path from", start, "to", goal, ":", path)
