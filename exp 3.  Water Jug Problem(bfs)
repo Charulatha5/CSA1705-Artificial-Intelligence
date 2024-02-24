@@ -1,44 +1,47 @@
 from collections import deque
 
-def bfs(start, end, capacities):
-    visited = set()
-    queue = deque([(start, [])])
+def solution(a, b, target):
+    m = {}
+    is_solvable = False
+    path = []
 
-    while queue:
-        current, path = queue.popleft()
+    q = deque([(0, 0)])
 
-        if current == end:
-            return path + [end]
+    while q:
+        u = q.popleft()
+        if u in m:
+            continue
+        if u[0] > a or u[1] > b or u[0] < 0 or u[1] < 0:
+            continue
+        path.append(u)
+        m[u] = 1
 
-        visited.add(current)
-        for action, result in get_actions(current, capacities):
-            if result not in visited:
-                queue.append((result, path + [action]))
+        if u[0] == target or u[1] == target:
+            is_solvable = True
+            if u[0] == target and u[1] != 0:
+                path.append((u[0], 0))
+            elif u[1] == target and u[0] != 0:
+                path.append((0, u[1]))
+            for state in path:
+                print("(", state[0], ",", state[1], ")")
+            break
 
-def get_actions(state, capacities):
-    actions = []
-    for i, jug in enumerate(state):
-        if jug > 0:
-            actions.append(('Empty Jug {}'.format(i + 1), tuple(0 if idx == i else val for idx, val in enumerate(state))))
-            for j, other in enumerate(state):
-                if i != j and other < capacities[j]:
-                    amount_to_pour = min(jug, capacities[j] - other)
-                    new_state = tuple(amount if idx == j else amount + other for idx, amount in enumerate(state))
-                    new_state = tuple(amount if idx == i else amount - amount_to_pour for idx, amount in enumerate(new_state))
-                    actions.append(('Pour from Jug {} to Jug {}'.format(i + 1, j + 1), new_state))
-    return actions
+        q.append((u[0], b))
+        q.append((a, u[1]))
+        for ap in range(max(a, b) + 1):
+            c, d = u[0] + ap, u[1] - ap
+            if c == a or (d == 0 and d >= 0):
+                q.append((c, d))
+            c, d = u[0] - ap, u[1] + ap
+            if (c == 0 and c >= 0) or d == b:
+                q.append((c, d))
+        q.append((a, 0))
+        q.append((0, b))
 
-def print_solution(path):
-    if path is None:
-        print("No solution found.")
-    else:
-        print("Solution found:")
-        for i, (action, state) in enumerate(path):
-            print("Step {}: {} => {}".format(i + 1, action, state))
+    if not is_solvable:
+        print("Solution not possible")
 
-capacities = (4, 3)
-start_state = (0, 0)
-end_state = (2, 0)
-
-solution_path = bfs(start_state, end_state, capacities)
-print_solution(solution_path)
+if __name__ == '__main__':
+    jug1, jug2, target = 4, 3, 2
+    print("Path from initial state to solution state ::")
+    solution(jug1, jug2, target)
