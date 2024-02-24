@@ -1,0 +1,40 @@
+from collections import deque
+
+def is_valid(state):
+    m, c, b = state
+    return 0 <= m <= 3 and 0 <= c <= 3 and (m == 0 or m >= c) and (3 - m == 0 or 3 - m >= 3 - c)
+
+def get_next_states(state):
+    moves = [(1, 0), (2, 0), (0, 1), (0, 2), (1, 1)]
+    m, c, b = state
+    next_states = []
+    for dm, dc in moves:
+        new_state = (m - dm, c - dc, 1 - b)
+        if is_valid(new_state):
+            next_states.append(new_state)
+    return next_states
+
+def bfs(start, end):
+    visited = set()
+    queue = deque([(start, [])])
+
+    while queue:
+        current, path = queue.popleft()
+
+        if current == end:
+            return path + [end]
+
+        visited.add(current)
+        for next_state in get_next_states(current):
+            if next_state not in visited:
+                queue.append((next_state, path + [next_state]))
+
+    return None
+
+solution_path = bfs((3, 3, 1), (0, 0, 0))
+if solution_path:
+    print("Solution found:")
+    for state in solution_path:
+        print(state)
+else:
+    print("No solution found.")
